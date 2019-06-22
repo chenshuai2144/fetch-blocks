@@ -1,0 +1,42 @@
+{
+  "name": "fetch-blocks",
+  "version": "1.0.0",
+  "description": "fetch all pro-blocks",
+  "main": "cli.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "fetch-blocks": "cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenshuai2144/fetch-blocks.git"
+  },
+  "keywords": [
+    "pro",
+    "blocks",
+    "ant",
+    "design"
+  ],
+  "author": "chenshuai2144",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chenshuai2144/fetch-blocks/issues"
+  },
+  "homepage": "https://github.com/chenshuai2144/fetch-blocks#readme",
+  "dependencies": {
+    "@babel/generator": "^7.4.4",
+    "@babel/parser": "^7.4.5",
+    "@babel/traverse": "^7.4.5",
+    "@babel/types": "^7.4.4",
+    "chalk": "^2.4.2",
+    "node-fetch": "^2.6.0",
+    "ora": "^3.4.0",
+    "prettier": "^1.18.0",
+    "rimraf": "^2.6.3",
+    "semver": "^6.1.1",
+    "yargs-parser": "^13.1.1"
+  }
+}
