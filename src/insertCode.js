@@ -165,24 +165,38 @@ const insertRightContent = configPath => {
   });
 };
 
+const getJsxOrTsx = (cwd, fileName) => {
+  let filePath = path.join(cwd, fileName);
+  if (fs.existsSync(filePath)) {
+    filePath = path.join(cwd, fileName.replace(".tsx", ".jsx"));
+  }
+  return filePath;
+};
+
 module.exports = cwd => {
   spinner.start(`🎁  insert ${chalk.hex("#1890ff")("BasicLayout")} success`);
-  const basicLayoutPath = path.join(cwd, "/src/layouts/BasicLayout.tsx");
-  fs.writeFileSync(basicLayoutPath, insertBasicLayout(basicLayoutPath));
+  let basicLayoutPath = getJsxOrTsx(cwd, "/src/layouts/BasicLayout.tsx");
+  if (fs.existsSync(basicLayoutPath)) {
+    fs.writeFileSync(basicLayoutPath, insertBasicLayout(basicLayoutPath));
+  }
   spinner.succeed();
 
-  const rightContentPath = path.join(
+  spinner.start(`🎁  insert ${chalk.hex("#1890ff")("RightContent")} success`);
+  const rightContentPath = getJsxOrTsx(
     cwd,
     "/src/components/GlobalHeader/RightContent.tsx"
   );
-  spinner.start(`🎁  insert ${chalk.hex("#1890ff")("RightContent")} success`);
-  fs.writeFileSync(rightContentPath, insertRightContent(rightContentPath));
+  if (fs.existsSync(rightContentPath)) {
+    fs.writeFileSync(rightContentPath, insertRightContent(rightContentPath));
+  }
   spinner.succeed();
 
   spinner.start(
     `🎁  insert ${chalk.hex("#1890ff")("blankLayoutPath")} success`
   );
-  const blankLayoutPath = path.join(cwd, "/src/layouts/BlankLayout.tsx");
-  fs.writeFileSync(blankLayoutPath, insertBlankLayout(blankLayoutPath));
+  const blankLayoutPath = getJsxOrTsx(cwd, "/src/layouts/BlankLayout.tsx");
+  if (fs.existsSync(blankLayoutPath)) {
+    fs.writeFileSync(blankLayoutPath, insertBlankLayout(blankLayoutPath));
+  }
   spinner.succeed();
 };

@@ -173,15 +173,15 @@ module.exports = async ({ cwd }) => {
 
   // 如果 ts 不存在 去找 js 的
   if (!fs.existsSync(relativePath)) {
-    spinner.error();
-    spinner.start("🧐  find config.ts ...");
+    spinner.warn();
+    spinner.start("🧐  find config.js ...");
 
     relativePath = path.join(cwd, "./config/config.js");
     isJS = true;
   }
 
   if (!fs.existsSync(relativePath)) {
-    spinner.error();
+    spinner.warn();
     // 如果 js 还不在报错
     console.log(chalk.red("🤔  config.js or config.ts not found"));
     return;
