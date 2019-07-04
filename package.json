@@ -1,6 +1,6 @@
 {
   "name": "fetch-blocks",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "fetch all pro-blocks",
   "main": "cli.js",
   "bin": {
