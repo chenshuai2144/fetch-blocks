@@ -167,7 +167,7 @@ const insertRightContent = configPath => {
 
 const getJsxOrTsx = (cwd, fileName) => {
   let filePath = path.join(cwd, fileName);
-  if (fs.existsSync(filePath)) {
+  if (!fs.existsSync(filePath)) {
     filePath = path.join(cwd, fileName.replace(".tsx", ".jsx"));
   }
   return filePath;
