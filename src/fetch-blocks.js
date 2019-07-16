@@ -14,7 +14,7 @@ const spinner = ora();
 let isJS = false;
 
 const fetchGithubFiles = async () => {
-  const ignoreFile = ["_scripts"];
+  const ignoreFile = ["_scripts", "tests"];
   const data = await fetch(
     `https://api.github.com/repos/ant-design/pro-blocks/git/trees/master`
   );
@@ -110,7 +110,7 @@ const installBlock = async cwd => {
     // 如果这个区块在 git 上存在
     if (gitFiles.find(file => file.path === gitPath)) {
       spinner.start(
-        "📥  install " +
+        "📦  install " +
           chalk.green(item.name) +
           " to: " +
           chalk.yellow(item.path)
@@ -154,9 +154,11 @@ const installBlock = async cwd => {
     if (!item || !item.path) {
       return Promise.resolve();
     }
-    spinner.start("📥 install " + chalk.green(item.path));
+    spinner.start("📦 install " + chalk.green(item.path));
 
-    const cmd = `umi block add https://github.com/ant-design/pro-blocks/tree/master/${item.path}`;
+    const cmd = `umi block add https://github.com/ant-design/pro-blocks/tree/master/${
+      item.path
+    }`;
     await execCmd(cmd);
 
     spinner.succeed();
@@ -197,4 +199,6 @@ module.exports = async ({ cwd }) => {
 
   await installBlock(cwd);
   await insertCode(cwd);
+
+  process.exit();
 };
