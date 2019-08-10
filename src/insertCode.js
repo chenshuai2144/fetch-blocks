@@ -1,7 +1,6 @@
 const parser = require("@babel/parser");
 const traverse = require("@babel/traverse");
 const generate = require("@babel/generator");
-const t = require("@babel/types");
 const fs = require("fs");
 const path = require("path");
 const prettier = require("prettier");
@@ -10,12 +9,11 @@ const ora = require("ora");
 
 const spinner = ora();
 
-const parseCode = code => {
-  return parser.parse(code, {
+const parseCode = code =>
+  parser.parse(code, {
     sourceType: "module",
     plugins: ["typescript", "jsx"]
   }).program.body[0];
-};
 
 /**
  * 生成代码
@@ -59,17 +57,15 @@ const mapAst = (configPath, callBack) => {
   return generateCode(ast);
 };
 
-const insertBasicLayout = configPath => {
-  return mapAst(configPath, body => {
-    const index = body.findIndex(item => {
-      return item.type !== "ImportDeclaration";
-    });
+const insertBasicLayout = configPath =>
+  mapAst(configPath, configBody => {
+    configBody.findIndex(item => item.type !== "ImportDeclaration");
 
-    body.forEach(item => {
+    configBody.forEach(item => {
       // 从包中导出 SettingDrawer
       if (item.type === "ImportDeclaration") {
         if (item.source.value === "@ant-design/pro-layout") {
-          item.specifiers.push(parseCode(`SettingDrawer`).expression);
+          item.specifiers.push(parseCode("SettingDrawer").expression);
         }
       }
       if (item.type === "VariableDeclaration") {
@@ -78,10 +74,10 @@ const insertBasicLayout = configPath => {
           init: { body }
         } = item.declarations[0];
         // 给 BasicLayout 中插入 button 和 设置抽屉
-        if (id.name === `BasicLayout`) {
+        if (id.name === "BasicLayout") {
           body.body.forEach(node => {
             if (node.type === "ReturnStatement") {
-              const JSXFragment = parseCode(`<></>`).expression;
+              const JSXFragment = parseCode("<></>").expression;
               JSXFragment.children.push({ ...node.argument });
               JSXFragment.children.push(
                 parseCode(SettingCodeString).expression
@@ -93,13 +89,10 @@ const insertBasicLayout = configPath => {
       }
     });
   });
-};
 
-const insertBlankLayout = configPath => {
-  return mapAst(configPath, body => {
-    const index = body.findIndex(item => {
-      return item.type !== "ImportDeclaration";
-    });
+const insertBlankLayout = configPath =>
+  mapAst(configPath, body => {
+    const index = body.findIndex(item => item.type !== "ImportDeclaration");
     // 从组件中导入 CopyBlock
     body.splice(
       index,
@@ -111,29 +104,26 @@ const insertBlankLayout = configPath => {
       if (item.type === "VariableDeclaration") {
         const { id, init } = item.declarations[0];
         // 给 BasicLayout 中插入 button 和 设置抽屉
-        if (id.name === `Layout`) {
-          const JSXFragment = parseCode(`<></>`).expression;
+        if (id.name === "Layout") {
+          const JSXFragment = parseCode("<></>").expression;
           JSXFragment.children.push({ ...init.body });
           JSXFragment.children.push(
-            parseCode(` <CopyBlock id={Date.now()}/>`).expression
+            parseCode("<CopyBlock id={Date.now()}/>").expression
           );
           init.body = JSXFragment;
         }
       }
     });
   });
-};
 
-const insertRightContent = configPath => {
-  return mapAst(configPath, body => {
-    const index = body.findIndex(item => {
-      return item.type !== "ImportDeclaration";
-    });
+const insertRightContent = configPath =>
+  mapAst(configPath, body => {
+    const codeIndex = body.findIndex(item => item.type !== "ImportDeclaration");
     // 从组件中导入 CopyBlock
     body.splice(
-      index,
+      codeIndex,
       0,
-      parseCode(`import NoticeIconView from './NoticeIconView';`)
+      parseCode('import NoticeIconView from "./NoticeIconView";')
     );
 
     body.forEach(item => {
@@ -141,29 +131,29 @@ const insertRightContent = configPath => {
         const classBody = item.declarations[0].init.body;
         classBody.body.forEach(node => {
           if (node.type === "ReturnStatement") {
-            const index = node.argument.children.findIndex(item => {
-              if (item.type === "JSXElement") {
-                if (item.openingElement.name.name === "Avatar") {
+            const index = node.argument.children.findIndex(argumentItem => {
+              if (argumentItem.type === "JSXElement") {
+                if (argumentItem.openingElement.name.name === "Avatar") {
                   return true;
                 }
               }
+              return undefined;
             });
             node.argument.children.splice(
               index,
               1,
-              parseCode(`<Avatar menu />`).expression
+              parseCode("<Avatar menu />").expression
             );
             node.argument.children.splice(
               index,
               0,
-              parseCode(`<NoticeIconView />`).expression
+              parseCode("<NoticeIconView />").expression
             );
           }
         });
       }
     });
   });
-};
 
 const getJsxOrTsx = (cwd, fileName) => {
   let filePath = path.join(cwd, fileName);
@@ -175,7 +165,7 @@ const getJsxOrTsx = (cwd, fileName) => {
 
 module.exports = cwd => {
   spinner.start(`🎁  insert ${chalk.hex("#1890ff")("BasicLayout")} success`);
-  let basicLayoutPath = getJsxOrTsx(cwd, "/src/layouts/BasicLayout.tsx");
+  const basicLayoutPath = getJsxOrTsx(cwd, "/src/layouts/BasicLayout.tsx");
   if (fs.existsSync(basicLayoutPath)) {
     fs.writeFileSync(basicLayoutPath, insertBasicLayout(basicLayoutPath));
   }

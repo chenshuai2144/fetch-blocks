@@ -1,13 +1,14 @@
 const path = require("path");
 const fs = require("fs");
 const fetch = require("node-fetch");
-const exec = require("child_process").exec;
-const getNewRouteCode = require("./repalceRouter");
-const router = require("./router.config");
+const execa = require("execa");
+const rimraf = require("rimraf");
+
 const chalk = require("chalk");
 const ora = require("ora");
 const insertCode = require("./insertCode");
-const rimraf = require("rimraf");
+const getNewRouteCode = require("./replaceRouter");
+const router = require("./router.config");
 
 const spinner = ora();
 
@@ -16,21 +17,21 @@ let isJS = false;
 const fetchGithubFiles = async () => {
   const ignoreFile = ["_scripts", "tests"];
   const data = await fetch(
-    `https://api.github.com/repos/ant-design/pro-blocks/git/trees/master`
+    "https://api.github.com/repos/ant-design/pro-blocks/git/trees/master"
   );
   if (data.status !== 200) {
-    return;
+    return [];
   }
   const { tree } = await data.json();
   const files = tree.filter(
     file => file.type === "tree" && !ignoreFile.includes(file.path)
   );
-  return Promise.resolve(files);
+  return files;
 };
 
-const findAllInstallRouter = router => {
+const findAllInstallRouter = route => {
   let routers = [];
-  router.forEach(item => {
+  route.forEach(item => {
     if (item.component && item.path) {
       if (item.path !== "/user" || item.path !== "/") {
         routers.push({
@@ -46,13 +47,13 @@ const findAllInstallRouter = router => {
   return routers;
 };
 
-const filterParentRouter = (router, layout) => {
-  return [...router]
+const filterParentRouter = (route, layout) =>
+  [...route]
     .map(item => {
       if (!item.path && item.component === "404") {
         return item;
       }
-      if (item.routes && (!router.component || layout)) {
+      if (item.routes && (!route.component || layout)) {
         return { ...item, routes: filterParentRouter(item.routes, false) };
       }
       if (item.redirect) {
@@ -61,38 +62,28 @@ const filterParentRouter = (router, layout) => {
       return null;
     })
     .filter(item => item);
-};
 
-const firstUpperCase = pathString => {
-  return pathString
+const firstUpperCase = pathString =>
+  pathString
     .replace(".", "")
-    .split(/\/|\-/)
+    .split(/\/|-/)
     .map(s => s.toLowerCase().replace(/( |^)[a-z]/g, L => L.toUpperCase()))
     .filter(s => s)
     .join("");
-};
 
 const execCmd = (shell, cwd) => {
-  return new Promise((resolve, reject) => {
-    exec(
-      shell,
-      {
-        encoding: "utf8",
-        cwd,
-        env: {
-          ...process.env,
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-        }
-      },
-      error => {
-        if (error) {
-          console.error(error);
-          return reject(error);
-        }
-        resolve();
+  try {
+    execa.commandSync(shell, {
+      encoding: "utf8",
+      cwd,
+      env: {
+        ...process.env,
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
       }
-    );
-  });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const installBlock = async cwd => {
@@ -110,10 +101,7 @@ const installBlock = async cwd => {
     // 如果这个区块在 git 上存在
     if (gitFiles.find(file => file.path === gitPath)) {
       spinner.start(
-        "📦  install " +
-          chalk.green(item.name) +
-          " to: " +
-          chalk.yellow(item.path)
+        `📦  install ${chalk.green(item.name)}  to: ${chalk.yellow(item.path)}`
       );
 
       // 如果文件夹存在，删除他
@@ -154,7 +142,7 @@ const installBlock = async cwd => {
     if (!item || !item.path) {
       return Promise.resolve();
     }
-    spinner.start("📦 install " + chalk.green(item.path));
+    spinner.start(`📦 install ${chalk.green(item.path)}`);
 
     const cmd = `umi block add https://github.com/ant-design/pro-blocks/tree/master/${
       item.path

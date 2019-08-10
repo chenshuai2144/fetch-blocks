@@ -18,6 +18,10 @@ if (args.v || args.version) {
   process.exit(0);
 }
 
+console.warn(
+  "fetch-blocks 已经迁移到 @ant-design/pro-cli  \n 仓库地址： https://github.com/ant-design/ant-design-pro-cli#readme"
+);
+
 if (!semver.satisfies(process.version, ">= 8.0.0")) {
   console.error(
     chalk.red("✘ The generator will only work with Node v8.0.0 and up!")

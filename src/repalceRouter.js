@@ -20,9 +20,9 @@ const getNewRouteCode = (configPath, newRoute) => {
       body.forEach(item => {
         if (t.isImportDeclaration(item)) {
           const { specifiers } = item;
-          const defaultEpecifier = specifiers.find(s => {
-            return t.isImportDefaultSpecifier(s) && t.isIdentifier(s.local);
-          });
+          const defaultEpecifier = specifiers.find(
+            s => t.isImportDefaultSpecifier(s) && t.isIdentifier(s.local)
+          );
           if (defaultEpecifier && t.isStringLiteral(item.source)) {
             importModules.push({
               identifierName: defaultEpecifier.local.name,
@@ -48,10 +48,10 @@ const getNewRouteCode = (configPath, newRoute) => {
         ) {
           if (value) {
             // find json file program expression
-            (p.value = parser.parse(
+            p.value = parser.parse(
               JSON.stringify(newRoute)
-            ).program.body[0].expression),
-              (routesNode = value);
+            ).program.body[0].expression;
+            routesNode = value;
           }
         }
       });
@@ -60,9 +60,8 @@ const getNewRouteCode = (configPath, newRoute) => {
   if (routesNode) {
     const code = generateCode(ast);
     return { code, routesPath: configPath };
-  } else {
-    throw new Error("route array config not found.");
   }
+  throw new Error("route array config not found.");
 };
 
 /**
